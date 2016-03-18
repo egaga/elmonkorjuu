@@ -20,13 +20,15 @@ type alias Card = {
 
 type alias Deck = List Card
 
+type alias Money = Int
+
 type alias Player = {
   nick: String,
   hand: List Card,
   trade: List Card,
   side: List Card,
   fields: List Field,
-  money: Int
+  money: Money
 }
 
 -- Field means planted cards, where List.length cards = amount
@@ -34,8 +36,6 @@ type alias Field = {
   amount: Int,
   card: Card
 }
-
-type alias Money = Int
 
 type alias PriceMapping = {
   amount: Int,
