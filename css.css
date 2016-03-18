@@ -1,0 +1,124 @@
+body {
+    background-color: #666;
+}
+
+.deck, .discard, .trading, .fields-and-hand {
+  min-height: 120px;
+  background-color: brown;
+  padding: 5px;
+  display: flex;
+  flex-direction: row;
+}
+
+.fields-and-hand {
+  background-color: blue;
+}
+
+.trading {
+  background-color: green;
+}
+
+.trade, .side, .fields, .hand {
+  display: flex;
+  flex-direction: row;
+  margin-left: 5px;
+}
+
+.card {
+  color: white;
+  background-color: gray;
+  padding: 5px;
+  margin: 5px;
+  min-width: 100px;
+  min-height: 140px;
+  border: 5px solid white;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.card:hover {
+  border-color: yellow;
+  box-shadow: black 4px 4px 4px;
+}
+
+.player-info {
+  padding: 10px;
+  color: white;
+}
+
+.money {
+  margin-left: 10px;
+}
+
+.card .priceMeter {
+  flex-direction: row;
+  display: flex;
+}
+
+.priceMapping {
+  width: 25px;
+  font-weight: bold;
+  color: black;
+}
+
+.priceMapping .coins {
+  color: gold;
+}
+
+.priceMapping .limit {
+  color: black;
+}
+
+.trade::before, .hand::before, .fields::before, .deck::before, .discard::before, .side::before {
+  color: white;
+  padding: 5px;
+  margin-left: 5px;
+  font-size: 18px;
+}
+
+.trade::before {
+  content: "Trade"
+}
+
+.hand::before {
+  content: "Hand"
+}
+
+.fields::before {
+  content: "Fields"
+}
+
+.deck::before {
+  content: "Deck"
+}
+
+.discard::before {
+  content: "Discard"
+}
+
+.side::before {
+  content: "Side"
+}
+
+button {
+  padding: 5px;
+  margin: 5px;
+}
+
+.plantButton {
+  color: red;
+  font-weight: bold;
+}
+
+.tradeButton {
+  visibility: hidden;
+  margin: 1px;
+  width: 95%;
+}
+
+.card:hover .tradeButton {
+  visibility: visible;
+}
