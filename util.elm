@@ -10,13 +10,13 @@ mapMaybeToList : (a -> b) -> Maybe a -> List b
 mapMaybeToList f x = maybeToList (Maybe.map f x)
 
 getFromIndex list index =
-    List.take 1 (List.drop index list)
+  List.take 1 (List.drop index list)
 
 splitByIndex : Int -> List a -> (List a, List a, List a)
 splitByIndex index list =
   let
     before = List.take index list
-    element = List.take 1 (List.drop index list)
+    element = getFromIndex list index
     after = List.drop (index+1) list
  in
     (before, element, after)
