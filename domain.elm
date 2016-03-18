@@ -136,8 +136,10 @@ createDeck listOfPairs =
 
 shuffleDeck : Deck -> Random.Seed -> Deck
 shuffleDeck deck seed =
-  let (shuffledDeck, newSeed) = Random.Array.shuffle seed (Array.fromList allCards)
-  in Array.toList shuffledDeck
+  let
+    (shuffledDeck, newSeed) = Random.Array.shuffle seed (Array.fromList allCards)
+  in
+    Array.toList shuffledDeck
 
 card : String -> CardType -> Card
 card name cardType = {
@@ -147,13 +149,14 @@ card name cardType = {
 plantTopmostCard : Player -> Player
 plantTopmostCard player =
   case List.head player.hand of
-      Nothing -> player
+      Nothing ->
+        player
       Just first -> {
         player |
           fields = addToFields first player.fields,
           hand = List.drop 1 player.hand }
 
-plantFromSide: Player -> Int -> Player
+plantFromSide: Player -> Index -> Player
 plantFromSide player cardIndex =
   let
     (before, cardAsList, after) = splitByIndex cardIndex player.side
@@ -207,7 +210,8 @@ playerSellsField player index =
     (before, f, after) = splitByIndex index player.fields
   in
     case List.head f of
-      Nothing -> Nothing
+      Nothing ->
+        Nothing
       Just field ->
         let
           newPlayer =
@@ -221,7 +225,7 @@ sellPrice: Int -> CardType -> Money
 sellPrice amount cardType =
   findMeterValue (priceMeterList cardType) amount
 
-keepFromTrade: Int -> Player -> Player
+keepFromTrade: Index -> Player -> Player
 keepFromTrade index player =
   let
     (before, keptCard, after) = splitByIndex index player.trade
@@ -230,28 +234,29 @@ keepFromTrade index player =
       trade = List.append before after,
       side = List.append player.side keptCard }
 
-tradeFromHand : Player -> Int -> Player -> (Player, Player)
-tradeFromHand fromPlayerInput i toPlayerInput =
+tradeFromHand : Player -> Index -> Player -> (Player, Player)
+tradeFromHand fromPlayerInput index toPlayerInput =
   let
-    (fromHand, toSide) = commonTrade fromPlayerInput.hand i toPlayerInput.side
+    (fromHand, toSide) = tradeCardFromList fromPlayerInput.hand index toPlayerInput.side
   in
     ( { fromPlayerInput | hand = fromHand },
       { toPlayerInput | side = toSide })
 
-trade : Player -> Int -> Player -> (Player, Player)
-trade fromPlayerInput i toPlayerInput =
+trade : Player -> Index -> Player -> (Player, Player)
+trade fromPlayerInput index toPlayerInput =
   let
-    (fromSide, toSide) = commonTrade fromPlayerInput.trade i toPlayerInput.side
+    (fromSide, toSide) = tradeCardFromList fromPlayerInput.trade index toPlayerInput.side
   in
     ( { fromPlayerInput | trade = fromSide },
       { toPlayerInput | side = toSide })
 
-commonTrade : List Card -> Int -> List Card -> (List Card, List Card)
-commonTrade fromList i toList =
+tradeCardFromList : List Card -> Index -> List Card -> (List Card, List Card)
+tradeCardFromList fromList index toList =
   let
-    (before, tradeCard, after) = splitByIndex i fromList
+    (before, tradeCard, after) = splitByIndex index fromList
   in
     case List.head tradeCard of
-      Nothing -> (fromList, toList)
+      Nothing ->
+        (fromList, toList)
       Just card ->
         (List.append before after, card :: toList)
