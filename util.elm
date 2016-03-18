@@ -29,9 +29,10 @@ findFirst test list =
   in
     List.head found
 
--- Get elements other than the player that is found by given test function in a pair of two lists.
--- First list has elements before element specified by the test.
--- Second list has elements after element specified by the test.
+-- Get elements other than the element that is found by given test function.
+-- The result is in a pair of two lists.
+-- First list has elements before the element specified by the test.
+-- Second list has elements after the element specified by the test.
 otherElements : List a -> ((Int, a) -> Bool) -> (List a, List a)
 otherElements list test =
     case findFirst test list of
