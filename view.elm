@@ -11,7 +11,7 @@ import Util            exposing (..)
 import VirtualDom      exposing (Property)
 
 cardContent card buttons =
-    List.concat [ buttons, [ text card.name, priceMeterView card.cardType ] ]
+    List.append buttons [ text card.name, priceMeterView card.cardType ]
 
 viewCard card =
   div [ class "card" ]
@@ -19,14 +19,13 @@ viewCard card =
 
 fieldView : Address Action.Action -> Player -> Field -> Html
 fieldView address player field =
-  case field of
-    {amount, card} ->
-      let
-        cardText = text (card.name ++ " (" ++ (toString amount) ++")")
-        sellAmount = Domain.sellPrice amount card.cardType
-        sellButton = button [ onClick address (Action.SellField player field) ] [ text ("Sell $" ++ (toString sellAmount)) ]
-      in
-        div [ class "card" ] [ cardText, sellButton, priceMeterView card.cardType ]
+  let
+    {amount, card} = field
+    cardText = text (card.name ++ " (" ++ (toString amount) ++")")
+    sellAmount = Domain.sellPrice amount card.cardType
+    sellButton = button [ onClick address (Action.SellField player field) ] [ text ("Sell $" ++ (toString sellAmount)) ]
+  in
+    div [ class "card" ] [ cardText, sellButton, priceMeterView card.cardType ]
 
 tradeButtonsView address players player cardIndex =
   let
