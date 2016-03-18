@@ -17,13 +17,13 @@ viewCard card =
   div [ class "card" ]
       (cardContent card [])
 
-fieldView : Address Action.Action -> Player -> Field -> Html
-fieldView address player field =
+fieldView : Address Action.Action -> Player -> Index -> Field -> Html
+fieldView address player index field =
   let
     {amount, card} = field
     cardText = text (card.name ++ " (" ++ (toString amount) ++")")
     sellAmount = Domain.sellPrice amount card.cardType
-    sellButton = button [ onClick address (Action.SellField player field) ] [ text ("Sell $" ++ (toString sellAmount)) ]
+    sellButton = button [ onClick address (Action.SellField player index) ] [ text ("Sell $" ++ (toString sellAmount)) ]
   in
     div [ class "card" ] [ cardText, sellButton, priceMeterView card.cardType ]
 
@@ -106,8 +106,8 @@ sideView address players player side =
 
 fieldsView : Address Action.Action -> Player -> List Field -> List Html
 fieldsView address player fields =
-  let fv field = div [ class "field" ] [fieldView address player field]
-  in List.map fv fields
+  let fv index field = div [ class "field" ] [fieldView address player index field]
+  in List.indexedMap fv fields
 
 tradeView : Address Action.Action -> List Player -> Player -> List Card -> List Html
 tradeView address players player trade =

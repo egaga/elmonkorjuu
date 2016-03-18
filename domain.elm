@@ -18,6 +18,8 @@ type alias Card = {
   cardType: CardType
 }
 
+type alias Index = Int
+
 type alias Deck = List Card
 
 type alias Money = Int
@@ -205,15 +207,21 @@ offerTrade player1 offeredCards1 player2 offeredCards2 = (player1, player2)
 sameField: Field -> Field -> Bool
 sameField field1 field2 = field1.card.cardType == field2.card.cardType
 
-playerSellsField: Player -> Field -> Player
-playerSellsField player field =
+playerSellsField: Player -> Index -> Maybe (Field, Player)
+playerSellsField player index =
   let
-    money = player.money + sellPrice field.amount field.card.cardType
-    remaining = List.filter (not << (sameField field)) player.fields
+    (before, f, after) = splitByIndex index player.fields
   in
-    { player |
-        money = money,
-        fields = remaining }
+    case List.head f of
+      Nothing -> Nothing
+      Just field ->
+        let
+          newPlayer =
+            { player |
+                money = player.money + sellPrice field.amount field.card.cardType,
+                fields = List.append before after }
+        in
+          Just (field, newPlayer)
 
 sellPrice: Int -> CardType -> Money
 sellPrice amount cardType =
