@@ -201,12 +201,6 @@ takeCardsFromDeck amount deck =
 takeCardToSide : Player -> Player
 takeCardToSide player = player
 
-offerTrade: Player -> List Card -> Player -> List Card -> (Player, Player)
-offerTrade player1 offeredCards1 player2 offeredCards2 = (player1, player2)
-
-sameField: Field -> Field -> Bool
-sameField field1 field2 = field1.card.cardType == field2.card.cardType
-
 playerSellsField: Player -> Index -> Maybe (Field, Player)
 playerSellsField player index =
   let
