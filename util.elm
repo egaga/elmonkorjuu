@@ -46,23 +46,23 @@ findFirst test list =
 -- Second list has elements after the element specified by the test.
 otherElements : List a -> ((Int, a) -> Bool) -> (List a, List a)
 otherElements list test =
-    case findFirst test list of
-      Nothing -> (list, []) -- element was not found!
-      Just (elementIndex, _) ->
-        let (before, _, after) = splitByIndex elementIndex list
-        in (before, after)
+  case findFirst test list of
+    Nothing -> (list, []) -- element was not found!
+    Just (elementIndex, _) ->
+      let (before, _, after) = splitByIndex elementIndex list
+      in (before, after)
 
 updateElement : Array a -> a -> ((Int, a) -> Bool) -> Array a
 updateElement array newElement test =
   let
     list = Array.toList array
-    result = listupdateElement list newElement test
+    result = listUpdateElement list newElement test
   in
     Array.fromList result
 
 -- Replace element in a list with a new element.
-listupdateElement : List a -> a -> ((Int, a) -> Bool) -> List a
-listupdateElement list newElement test =
+listUpdateElement : List a -> a -> ((Int, a) -> Bool) -> List a
+listUpdateElement list newElement test =
   let
     (before, after) = otherElements list test -- the old element gets discarded
   in
