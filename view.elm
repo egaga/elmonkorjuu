@@ -80,7 +80,7 @@ priceMeterView : CardType -> Html
 priceMeterView cardType =
   let
     meterList = Domain.priceMeterList cardType
-    priceColumns = List.map amountToPriceView (Array.toList meterList)
+    priceColumns = Array.map amountToPriceView meterList |> Array.toList
   in
     div [ class "priceMeter" ] priceColumns
 
@@ -109,7 +109,7 @@ sideView address players player side =
 fieldsView : Address Action.Action -> Player -> Array Field -> List Html
 fieldsView address player fields =
   let fv index field = div [ class "field" ] [fieldView address player index field]
-  in List.indexedMap fv (Array.toList fields)
+  in Array.indexedMap fv fields |> Array.toList
 
 tradeView : Address Action.Action -> List Player -> Player -> List Card -> List Html
 tradeView address players player trade =
@@ -152,6 +152,7 @@ view address model =
     playerList = Array.toList model.players
     deckView = div [ class "deck" ] (List.map viewCard (Array.toList model.deck))
     discardView = div [ class "discard" ] (List.map viewCard (Array.toList model.discard))
-    gameView = stylesheet :: deckView :: discardView :: List.concatMap (playerView address playerList) playerList
+    playersView = List.concatMap (playerView address playerList) playerList
+    gameView = stylesheet :: deckView :: discardView :: playersView
   in
     div [ class "game-view" ] gameView
