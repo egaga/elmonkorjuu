@@ -70,8 +70,13 @@ listupdateElement list newElement test =
   in
     List.concat [ before, [ newElement ], after ]
 
+arrayReverse : Array a -> Array a
 arrayReverse array =
   let
     list = Array.toList array
   in
     Array.fromList (List.reverse list)
+
+arrayDrop : Int -> Array a -> Array a
+arrayDrop amount array =
+  Array.slice amount (Array.length array) array

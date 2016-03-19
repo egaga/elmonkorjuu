@@ -161,7 +161,7 @@ plantTopmostCard player =
       Just first -> {
         player |
           fields = addToFields first player.fields,
-          hand = Array.slice 1 (Array.length player.hand) player.hand }
+          hand = arrayDrop 1 player.hand }
 
 plantFromSide: Player -> Index -> Player
 plantFromSide player cardIndex =
@@ -210,7 +210,7 @@ drawCardsToTrade deck player =
 
 takeCardsFromDeck : Int -> Deck -> (Array Card, Deck)
 takeCardsFromDeck amount deck =
-  (Array.slice 0 amount deck, Array.slice amount (Array.length deck) deck)
+  (Array.slice 0 amount deck, arrayDrop amount deck)
 
 takeCardToSide : Player -> Player
 takeCardToSide player = player
