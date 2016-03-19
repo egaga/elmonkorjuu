@@ -1,6 +1,11 @@
 -- TODO
 -- Restrict the actions of players (for some of the rules)
 
+-- Design note:
+-- Referencing specific card is done using array index.
+-- This is vulnarable if multiple simultaneous actions occur.
+-- TODO reference cards by their identity.
+
 module Elmonkorjuu where
 
 import Style           exposing (..)
