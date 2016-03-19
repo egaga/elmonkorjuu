@@ -92,8 +92,7 @@ priceMeterList cardType =
       Green -> [(3, 1), (5, 2), (6, 3), (7, 4)]
       Cocoa -> [(2, 2), (3, 3), (4, 4)]
     in
-      let result = List.map (\mapping -> { amount = fst mapping, money = snd mapping }) mappings
-      in  Array.fromList result
+      Array.map (\(a, m) -> { amount = a, money = m }) (Array.fromList mappings)
 
 createField : Int -> Card -> Field
 createField amount card = {
