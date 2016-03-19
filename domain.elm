@@ -135,10 +135,7 @@ findMeterValue l totalCards =
 
 createDeck : List (Int, Card) -> Array Card
 createDeck listOfPairs =
-  let
-    l = List.concatMap (\(amount, card) -> List.repeat amount card) listOfPairs
-  in
-    Array.fromList l
+  Array.fromList <| List.concatMap (\(amount, card) -> List.repeat amount card) listOfPairs
 
 shuffleDeck : Deck -> Random.Seed -> Deck
 shuffleDeck deck seed =
@@ -178,7 +175,7 @@ plantFromSide player cardIndex =
 -- Does not support if same card type has multiple cards.
 addToFields : Card -> Array Field -> Array Field
 addToFields card array =
-    Array.fromList (listaddToFields card (Array.toList array))
+    Array.fromList <| listaddToFields card (Array.toList array)
 
 listaddToFields : Card -> List Field -> List Field
 listaddToFields card fields =

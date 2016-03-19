@@ -64,7 +64,7 @@ update action model =
         Nothing -> model
         Just ({amount, card}, player) ->
           let
-            newDiscard = Array.append model.discard (Array.fromList (List.repeat amount card))
+            newDiscard = Array.append model.discard (Array.fromList <| List.repeat amount card)
           in
             { model |
                 players = updatePlayer player model.players,
