@@ -14,16 +14,14 @@ mapMaybeToList f x = maybeToList (Maybe.map f x)
 getFromIndex list index =
   List.take 1 (List.drop index list)
 
--- TODO don't use list at all
 asplitByIndex : Int -> Array a -> (Array a, Array a, Array a)
 asplitByIndex index array =
   let
-    list = Array.toList array
-    before = List.take index list
-    element = getFromIndex list index
-    after = List.drop (index+1) list
+    before = Array.slice 0 index array
+    element = Array.slice index (1+index) array
+    after = arrayDrop (index+1) array
  in
-    (Array.fromList before, Array.fromList element, Array.fromList after)
+    (before, element, after)
 
 splitByIndex : Int -> List a -> (List a, List a, List a)
 splitByIndex index list =
