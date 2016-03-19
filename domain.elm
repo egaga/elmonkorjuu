@@ -7,7 +7,7 @@ import Dict exposing (..)
 import Util exposing (..)
 
 type alias Model = {
-    players: List Player,
+    players: Array Player,
     deck: Deck,
     discard: Deck }
 
@@ -20,16 +20,16 @@ type alias Card = {
 
 type alias Index = Int
 
-type alias Deck = List Card
+type alias Deck = Array Card
 
 type alias Money = Int
 
 type alias Player = {
   nick: String,
-  hand: List Card,
-  trade: List Card,
-  side: List Card,
-  fields: List Field,
+  hand: Array Card,
+  trade: Array Card,
+  side: Array Card,
+  fields: Array Field,
   money: Money
 }
 
@@ -57,24 +57,26 @@ cards = {
   garden = card "Garden" Garden,
   cocoa = card "Cocoa" Cocoa }
 
-allCards = createDeck [
-  ( 24, cards.coffee ),
-  ( 22, cards.wax ),
-  ( 20, cards.blue ),
-  ( 18, cards.chili ),
-  ( 16, cards.stink ),
-  ( 14, cards.green ),
-  ( 12, cards.soy ),
-  ( 10, cards.blackEyed ),
-  ( 8, cards.red ),
-  ( 6, cards.garden ),
-  ( 4, cards.cocoa ) ]
+allCards : Array Card
+allCards =
+  createDeck [
+    ( 24, cards.coffee ),
+    ( 22, cards.wax ),
+    ( 20, cards.blue ),
+    ( 18, cards.chili ),
+    ( 16, cards.stink ),
+    ( 14, cards.green ),
+    ( 12, cards.soy ),
+    ( 10, cards.blackEyed ),
+    ( 8, cards.red ),
+    ( 6, cards.garden ),
+    ( 4, cards.cocoa ) ]
 
 drawToTradeCardsAmount = 2
 
 -- The value of cards given the type of card and amount of cards
 -- e.g. if 4 cards of Soy then one gets 2 money
-priceMeterList : CardType -> List PriceMapping
+priceMeterList : CardType -> Array PriceMapping
 priceMeterList cardType =
   let mappings =
     case cardType of
@@ -90,56 +92,61 @@ priceMeterList cardType =
       Green -> [(3, 1), (5, 2), (6, 3), (7, 4)]
       Cocoa -> [(2, 2), (3, 3), (4, 4)]
     in
-      List.map (\mapping -> { amount = fst mapping, money = snd mapping }) mappings
+      let result = List.map (\mapping -> { amount = fst mapping, money = snd mapping }) mappings
+      in  Array.fromList result
 
 createField : Int -> Card -> Field
 createField amount card = {
   amount = amount,
   card = card }
 
-createPlayer : String -> List Card -> Player
+createPlayer : String -> Array Card -> Player
 createPlayer nick startingHand =
   {
     nick = nick,
     hand = startingHand,
-    trade = [],
-    side = [],
-    fields = [],
+    trade = Array.empty,
+    side = Array.empty,
+    fields = Array.empty,
     money = 0 }
 
+startGameWithPlayers : Deck -> List String -> (Deck, Array Player)
 startGameWithPlayers startDeck nicks =
   let
-    accumulate : String -> (Deck, List Player) -> (Deck, List Player)
+    accumulate : String -> (Deck, Array Player) -> (Deck, Array Player)
     accumulate nick (currentDeck, players) =
       let
         (hand, newDeck) = takeCardsFromDeck 5 currentDeck
         newPlayer = createPlayer nick hand
       in
-        (newDeck, newPlayer :: players)
+        (newDeck, Array.append (Array.fromList [newPlayer]) players)
   in
-    List.foldl accumulate (startDeck, []) nicks
+    Array.foldl accumulate (startDeck, Array.empty) (Array.fromList nicks)
 
 -- The money player gets when she has <amount> of cards, according to the price mapping
-findMeterValue : List PriceMapping -> Int -> Money
+findMeterValue : Array PriceMapping -> Int -> Money
 findMeterValue l totalCards =
   let
-    over = List.filter (\{amount, money} -> amount <= totalCards) l
-    last = List.head (List.reverse over)
+    over = Array.filter (\{amount, money} -> amount <= totalCards) l
+    last = Array.get 0 (arrayReverse over)
   in
     case last of
       Nothing -> 0
       Just {money} -> money
 
-createDeck : List (Int, Card) -> List Card
+createDeck : List (Int, Card) -> Array Card
 createDeck listOfPairs =
-  List.concatMap (\(amount, card) -> List.repeat amount card) listOfPairs
+  let
+    l = List.concatMap (\(amount, card) -> List.repeat amount card) listOfPairs
+  in
+    Array.fromList l
 
 shuffleDeck : Deck -> Random.Seed -> Deck
 shuffleDeck deck seed =
   let
-    (shuffledDeck, newSeed) = Random.Array.shuffle seed (Array.fromList allCards)
+    (shuffledDeck, newSeed) = Random.Array.shuffle seed allCards
   in
-    Array.toList shuffledDeck
+    shuffledDeck
 
 card : String -> CardType -> Card
 card name cardType = {
@@ -148,30 +155,34 @@ card name cardType = {
 
 plantTopmostCard : Player -> Player
 plantTopmostCard player =
-  case List.head player.hand of
+  case Array.get 0 player.hand of
       Nothing ->
         player
       Just first -> {
         player |
           fields = addToFields first player.fields,
-          hand = List.drop 1 player.hand }
+          hand = Array.slice 1 (Array.length player.hand) player.hand }
 
 plantFromSide: Player -> Index -> Player
 plantFromSide player cardIndex =
   let
-    (before, cardAsList, after) = splitByIndex cardIndex player.side
+    (before, cardAsList, after) = asplitByIndex cardIndex player.side
   in
-    case List.head cardAsList of
+    case Array.get 0 cardAsList of
       Nothing -> player
       Just elem ->
         { player |
           fields = addToFields elem player.fields,
-          side = List.append before after }
+          side = Array.append before after }
 
 -- Adds card to existing field if same card type; otherwise creates new one.
 -- Does not support if same card type has multiple cards.
-addToFields : Card -> List Field -> List Field
-addToFields card fields =
+addToFields : Card -> Array Field -> Array Field
+addToFields card array =
+    Array.fromList (listaddToFields card (Array.toList array))
+
+listaddToFields : Card -> List Field -> List Field
+listaddToFields card fields =
   let
     (sameFields, differentFields) = List.partition (\field -> field.card.cardType == card.cardType) fields
   in
@@ -185,7 +196,7 @@ drawCardsToHand : Deck -> Player -> (Deck, Player)
 drawCardsToHand deck player =
   let
     (newCards, deck) = takeCardsFromDeck 3 deck
-    newPlayer = { player | hand = List.append player.hand newCards }
+    newPlayer = { player | hand = Array.append player.hand newCards }
   in
     (deck, newPlayer)
 
@@ -197,9 +208,9 @@ drawCardsToTrade deck player =
   in
     (newDeck, newPlayer)
 
-takeCardsFromDeck : Int -> Deck -> (List Card, Deck)
+takeCardsFromDeck : Int -> Deck -> (Array Card, Deck)
 takeCardsFromDeck amount deck =
-  (List.take amount deck, List.drop amount deck)
+  (Array.slice 0 amount deck, Array.slice amount (Array.length deck) deck)
 
 takeCardToSide : Player -> Player
 takeCardToSide player = player
@@ -207,9 +218,9 @@ takeCardToSide player = player
 playerSellsField: Player -> Index -> Maybe (Field, Player)
 playerSellsField player index =
   let
-    (before, f, after) = splitByIndex index player.fields
+    (before, f, after) = asplitByIndex index player.fields
   in
-    case List.head f of
+    case Array.get 0 f of
       Nothing ->
         Nothing
       Just field ->
@@ -217,7 +228,7 @@ playerSellsField player index =
           newPlayer =
             { player |
                 money = player.money + sellPrice field.amount field.card.cardType,
-                fields = List.append before after }
+                fields = Array.append before after }
         in
           Just (field, newPlayer)
 
@@ -228,11 +239,11 @@ sellPrice amount cardType =
 keepFromTrade: Index -> Player -> Player
 keepFromTrade index player =
   let
-    (before, keptCard, after) = splitByIndex index player.trade
+    (before, keptCard, after) = asplitByIndex index player.trade
   in
    { player |
-      trade = List.append before after,
-      side = List.append player.side keptCard }
+      trade = Array.append before after,
+      side = Array.append player.side keptCard }
 
 tradeFromHand : Player -> Index -> Player -> (Player, Player)
 tradeFromHand fromPlayerInput index toPlayerInput =
@@ -250,13 +261,13 @@ trade fromPlayerInput index toPlayerInput =
     ( { fromPlayerInput | trade = fromSide },
       { toPlayerInput | side = toSide })
 
-tradeCardFromList : List Card -> Index -> List Card -> (List Card, List Card)
+tradeCardFromList : Array Card -> Index -> Array Card -> (Array Card, Array Card)
 tradeCardFromList fromList index toList =
   let
-    (before, tradeCard, after) = splitByIndex index fromList
+    (before, tradeCard, after) = asplitByIndex index fromList
   in
-    case List.head tradeCard of
+    case Array.get 0 tradeCard of
       Nothing ->
         (fromList, toList)
       Just card ->
-        (List.append before after, card :: toList)
+        (Array.append before after, Array.append (Array.fromList [card]) toList)

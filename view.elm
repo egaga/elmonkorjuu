@@ -9,10 +9,12 @@ import Html.Attributes exposing (..)
 import Signal          exposing (..)
 import Util            exposing (..)
 import VirtualDom      exposing (Property)
+import Array           exposing (..)
 
 cardContent card buttons =
     List.append buttons [ text card.name, priceMeterView card.cardType ]
 
+viewCard : Card -> Html
 viewCard card =
   div [ class "card" ]
       (cardContent card [])
@@ -78,7 +80,7 @@ priceMeterView : CardType -> Html
 priceMeterView cardType =
   let
     meterList = Domain.priceMeterList cardType
-    priceColumns = List.map amountToPriceView meterList
+    priceColumns = List.map amountToPriceView (Array.toList meterList)
   in
     div [ class "priceMeter" ] priceColumns
 
@@ -104,10 +106,10 @@ sideView address players player side =
   in
     List.indexedMap sideCardView side
 
-fieldsView : Address Action.Action -> Player -> List Field -> List Html
+fieldsView : Address Action.Action -> Player -> Array Field -> List Html
 fieldsView address player fields =
   let fv index field = div [ class "field" ] [fieldView address player index field]
-  in List.indexedMap fv fields
+  in List.indexedMap fv (Array.toList fields)
 
 tradeView : Address Action.Action -> List Player -> Player -> List Card -> List Html
 tradeView address players player trade =
@@ -137,18 +139,19 @@ playerView address players player =
     button [ onClick address (Action.DrawCardsToHand player) ] [ text "Draw cards to hand" ],
     div [ class "fields-and-hand" ] [
       div [ class "fields" ] (fieldsView address player player.fields),
-      div [ class "hand" ] (viewHand address otherPlayers player player.hand)
+      div [ class "hand" ] (viewHand address otherPlayers player (Array.toList player.hand))
     ],
     div [ class "trading"] [
-      div [ class "trade" ] (tradeView address otherPlayers player player.trade),
-      div [ class "side" ] (sideView address otherPlayers player player.side) ]
+      div [ class "trade" ] (tradeView address otherPlayers player (Array.toList player.trade)),
+      div [ class "side" ] (sideView address otherPlayers player (Array.toList player.side)) ]
     ]
 
 view : Address Action.Action -> Model -> Html
 view address model =
   let
-    deckView = div [ class "deck" ] (List.map viewCard model.deck)
-    discardView = div [ class "discard" ] (List.map viewCard model.discard)
-    gameView = stylesheet :: deckView :: discardView :: List.concatMap (playerView address model.players) model.players
+    playerList = Array.toList model.players
+    deckView = div [ class "deck" ] (List.map viewCard (Array.toList model.deck))
+    discardView = div [ class "discard" ] (List.map viewCard (Array.toList model.discard))
+    gameView = stylesheet :: deckView :: discardView :: List.concatMap (playerView address playerList) playerList
   in
     div [ class "game-view" ] gameView

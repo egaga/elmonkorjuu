@@ -14,6 +14,7 @@ import StartApp.Simple as StartApp
 import Util            exposing (..)
 import UI as Action exposing (Action)
 import Random exposing (initialSeed)
+import Array exposing (..)
 
 -- TODO get seed from mousemovements&time
 shuffledDeck = Domain.shuffleDeck Domain.allCards (Random.initialSeed 10)
@@ -25,15 +26,15 @@ initialModel =
   in
     { players = players,
       deck = deck,
-      discard = [] }
+      discard = Array.empty }
 
-updatePlayer : Player -> List Player -> List Player
+updatePlayer : Player -> Array Player -> Array Player
 updatePlayer player players =
   updateElement players player (\(i, p)  -> p.nick == player.nick)
 
-updatePlayers : List Player -> List Player -> List Player
+updatePlayers : Array Player -> Array Player -> Array Player
 updatePlayers players updatedPlayers =
-  List.foldl updatePlayer players updatedPlayers
+  Array.foldl updatePlayer players updatedPlayers
 
 updateWith : Model -> Player -> Model
 updateWith model player =
@@ -48,7 +49,7 @@ update action model =
       in
         { model | deck = deck, players = updatePlayer player model.players }
     Action.SelectCard card ->
-      Debug.log card.name { model | discard = [ card ] }
+      Debug.log card.name { model | discard = Array.fromList [ card ] }
     Action.PlantFromHand playerInput ->
       updateWith model (Domain.plantTopmostCard playerInput)
     Action.PlantFromSide playerInput index ->
@@ -58,7 +59,7 @@ update action model =
         Nothing -> model
         Just ({amount, card}, player) ->
           let
-            newDiscard = List.append model.discard (List.repeat amount card)
+            newDiscard = Array.append model.discard (Array.fromList (List.repeat amount card))
           in
             { model |
                 players = updatePlayer player model.players,
@@ -75,12 +76,12 @@ update action model =
       let
         (fromPlayer, toPlayer) = Domain.tradeFromHand fromPlayerInput i toPlayerInput
       in
-        { model | players = updatePlayers model.players [fromPlayer, toPlayer] }
+        { model | players = updatePlayers model.players (Array.fromList [fromPlayer, toPlayer]) }
     Action.Trade fromPlayerInput i toPlayerInput ->
       let
         (fromPlayer, toPlayer) = Domain.trade fromPlayerInput i toPlayerInput
       in
-        { model | players = updatePlayers model.players [fromPlayer, toPlayer] }
+        { model | players = updatePlayers model.players (Array.fromList [fromPlayer, toPlayer]) }
 
 main : Signal Html
 main =
