@@ -6,6 +6,10 @@
 -- This is vulnarable if multiple simultaneous actions occur.
 -- TODO reference cards by their identity.
 
+-- Design note:
+-- Code (actions, etc) could be split hierarchically so that code consists of components:
+-- a component itself would be similar to a small Elm program with update, view and model functions
+
 module Elmonkorjuu where
 
 import Style           exposing (..)
