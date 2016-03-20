@@ -19,11 +19,12 @@ import Html            exposing (..)
 import Html.Events     exposing (..)
 import Html.Attributes exposing (..)
 import Signal          exposing (..)
-import StartApp.Simple as StartApp
+import StartApp
 import Util            exposing (..)
 import UI as Action exposing (Action)
 import Random exposing (initialSeed)
 import Array exposing (..)
+import Effects exposing (Effects)
 
 -- TODO get seed from mousemovements&time
 shuffledDeck = Domain.shuffleDeck Domain.allCards (Random.initialSeed 10)
@@ -49,8 +50,14 @@ updateWith : Model -> Player -> Model
 updateWith model player =
   { model | players = updatePlayer player model.players }
 
-update : Action -> Model -> Model
-update action model =
+noEffect : Model -> (Model, Effects Action)
+noEffect model = (model, Effects.none)
+
+update : Action -> Model -> (Model, Effects Action)
+update action model = noEffect <| updateModel action model
+
+updateModel : Action -> Model -> Model
+updateModel action model =
   case action of
     Action.DrawCardsToTrade playerInput ->
       let
@@ -92,9 +99,15 @@ update action model =
       in
         { model | players = updatePlayers model.players (Array.fromList [fromPlayer, toPlayer]) }
 
-main : Signal Html
-main =
+init : (Model, Effects Action)
+init = (initialModel, Effects.none)
+
+app =
   StartApp.start
-    { model = initialModel,
+    { init = init,
       view = view,
-      update = update }
+      update = update,
+      inputs = [] }
+
+main =
+  app.html
