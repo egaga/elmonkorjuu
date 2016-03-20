@@ -5,8 +5,10 @@ import Random.Array exposing (..)
 import Array exposing (..)
 import Dict exposing (..)
 import Util exposing (..)
+import Time exposing (Time)
 
 type alias Model = {
+    playTime: Time,
     players: Array Player,
     deck: Deck,
     discard: Deck }

@@ -10,6 +10,7 @@ import Signal          exposing (..)
 import Util            exposing (..)
 import VirtualDom      exposing (Property)
 import Array           exposing (..)
+import Time            exposing (..)
 
 cardContent card buttons =
     List.append buttons [ text card.name, priceMeterView card.cardType ]
@@ -146,6 +147,16 @@ playerView address players player =
       div [ class "side" ] (sideView address otherPlayers player (Array.toList player.side)) ]
     ]
 
+timeView : Time -> Html
+timeView time =
+  let
+    timeInSeconds = Time.inSeconds time |> round |> toString
+  in
+    div [ class "time" ]
+        [ text "Play time: ",
+          span [ class "seconds" ] [ text <| timeInSeconds ],
+          text " seconds." ]
+
 view : Address Action.Action -> Model -> Html
 view address model =
   let
@@ -153,6 +164,6 @@ view address model =
     deckView = div [ class "deck" ] (List.map viewCard (Array.toList model.deck))
     discardView = div [ class "discard" ] (List.map viewCard (Array.toList model.discard))
     playersView = List.concatMap (playerView address playerList) playerList
-    gameView = stylesheet :: deckView :: discardView :: playersView
+    gameView = stylesheet :: timeView model.playTime :: deckView :: discardView :: playersView
   in
     div [ class "game-view" ] gameView

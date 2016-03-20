@@ -24,7 +24,9 @@ import Util            exposing (..)
 import UI as Action exposing (Action)
 import Random exposing (initialSeed)
 import Array exposing (..)
-import Effects exposing (Effects)
+import Effects exposing (Effects, Never)
+import Time exposing (Time, second)
+import Task
 
 -- TODO get seed from mousemovements&time
 shuffledDeck = Domain.shuffleDeck Domain.allCards (Random.initialSeed 10)
@@ -34,7 +36,9 @@ initialModel =
   let
     (deck, players) = startGameWithPlayers shuffledDeck ["Pasi", "Anssi", "Henkka"]
   in
-    { players = players,
+    {
+      playTime = 0,
+      players = players,
       deck = deck,
       discard = Array.empty }
 
@@ -51,56 +55,60 @@ updateWith model player =
   { model | players = updatePlayer player model.players }
 
 noEffect : Model -> (Model, Effects Action)
-noEffect model = (model, Effects.none)
+noEffect model =
+  (model, Effects.none)
 
 update : Action -> Model -> (Model, Effects Action)
-update action model = noEffect <| updateModel action model
-
-updateModel : Action -> Model -> Model
-updateModel action model =
+update action model =
   case action of
+    Action.GetTime newTime ->
+      let
+        newModel = { model | playTime = newTime }
+      in
+        (newModel, Effects.tick Action.GetTime)
     Action.DrawCardsToTrade playerInput ->
       let
         (deck, player) = Domain.drawCardsToTrade model.deck playerInput
       in
-        { model | deck = deck, players = updatePlayer player model.players }
-    Action.SelectCard card ->
-      Debug.log card.name { model | discard = Array.fromList [ card ] }
+        noEffect <| { model | deck = deck, players = updatePlayer player model.players }
     Action.PlantFromHand playerInput ->
-      updateWith model (Domain.plantTopmostCard playerInput)
+      noEffect <| updateWith model (Domain.plantTopmostCard playerInput)
     Action.PlantFromSide playerInput index ->
-      updateWith model (Domain.plantFromSide playerInput index)
+      noEffect <| updateWith model (Domain.plantFromSide playerInput index)
     Action.SellField playerInput index ->
       case Domain.playerSellsField playerInput index of
-        Nothing -> model
+        Nothing -> noEffect <| model
         Just ({amount, card}, player) ->
           let
             newDiscard = Array.append model.discard (Array.fromList <| List.repeat amount card)
           in
-            { model |
+            noEffect <|
+              { model |
                 players = updatePlayer player model.players,
                 discard = newDiscard }
     Action.DrawCardsToHand playerInput ->
        let
          (deck, player) = Domain.drawCardsToHand model.deck playerInput
-       in { model |
+       in
+        noEffect <|
+          { model |
               players = updatePlayer player model.players,
               deck = deck }
     Action.KeepFromTrade playerInput i ->
-      updateWith model (Domain.keepFromTrade i playerInput)
+      noEffect <| updateWith model (Domain.keepFromTrade i playerInput)
     Action.TradeFromHand fromPlayerInput i toPlayerInput ->
       let
         (fromPlayer, toPlayer) = Domain.tradeFromHand fromPlayerInput i toPlayerInput
       in
-        { model | players = updatePlayers model.players (Array.fromList [fromPlayer, toPlayer]) }
+        noEffect <| { model | players = updatePlayers model.players (Array.fromList [fromPlayer, toPlayer]) }
     Action.Trade fromPlayerInput i toPlayerInput ->
       let
         (fromPlayer, toPlayer) = Domain.trade fromPlayerInput i toPlayerInput
       in
-        { model | players = updatePlayers model.players (Array.fromList [fromPlayer, toPlayer]) }
+        noEffect <| { model | players = updatePlayers model.players (Array.fromList [fromPlayer, toPlayer]) }
 
 init : (Model, Effects Action)
-init = (initialModel, Effects.none)
+init = (initialModel, Effects.tick Action.GetTime)
 
 app =
   StartApp.start
@@ -111,3 +119,8 @@ app =
 
 main =
   app.html
+
+-- Perform tasks
+port tasks : Signal (Task.Task Never ())
+port tasks =
+  app.tasks

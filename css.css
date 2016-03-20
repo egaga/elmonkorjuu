@@ -122,3 +122,11 @@ button {
 .card:hover .tradeButton {
   visibility: visible;
 }
+
+.time {
+  padding: 3px;
+}
+
+.time .seconds {
+  color: white;
+}
