@@ -3,7 +3,6 @@ module Domain where
 import Random exposing (initialSeed)
 import Random.Array exposing (..)
 import Array exposing (..)
-import Dict exposing (..)
 import Util exposing (..)
 import Time exposing (Time)
 

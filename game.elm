@@ -12,12 +12,9 @@
 
 module Elmonkorjuu where
 
-import Style           exposing (..)
 import View as GameView
 import Domain          exposing (..)
 import Html            exposing (..)
-import Html.Events     exposing (..)
-import Html.Attributes exposing (..)
 import Signal          exposing (..)
 import StartApp
 import Util            exposing (..)
