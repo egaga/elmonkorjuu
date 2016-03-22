@@ -1,4 +1,4 @@
-module View where
+module View (view) where
 
 import UI
 import UI as PlayerAction exposing (PlayerAction)
