@@ -9,16 +9,15 @@ import Html.Events     exposing (..)
 import Html.Attributes exposing (..)
 import Signal          exposing (..)
 import Util            exposing (..)
-import VirtualDom      exposing (Property)
 import Array           exposing (..)
 import Time            exposing (..)
 
 type alias Context a = {
-  newActionHandler : (Address a -> a -> Attribute) -> PlayerAction -> Property
+  newActionHandler : (Address a -> a -> Attribute) -> PlayerAction -> Attribute
 }
 
 type alias EnhancedContext = {
-  onClick : PlayerAction -> Property
+  onClick : PlayerAction -> Attribute
 }
 
 enhanced context = {
