@@ -68,51 +68,49 @@ update action model =
       in
         (newModel, Effects.tick Action.GetTime)
     Action.PlayerAction playerAction ->
-      updatePlayerAction playerAction model
+      noEffect <| updatePlayerAction playerAction model
 
-updatePlayerAction : Action.PlayerAction -> Model -> (Model, Effects Action)
+updatePlayerAction : Action.PlayerAction -> Model -> Model
 updatePlayerAction action model =
   case action of
     PlayerAction.DrawCardsToTrade playerInput ->
       let
         (deck, player) = Domain.drawCardsToTrade model.deck playerInput
       in
-        noEffect <| { model | deck = deck, players = updatePlayer player model.players }
+        { model | deck = deck, players = updatePlayer player model.players }
     PlayerAction.PlantFromHand playerInput ->
-      noEffect <| updateWith model (Domain.plantTopmostCard playerInput)
+      updateWith model (Domain.plantTopmostCard playerInput)
     PlayerAction.PlantFromSide playerInput index ->
-      noEffect <| updateWith model (Domain.plantFromSide playerInput index)
+      updateWith model (Domain.plantFromSide playerInput index)
     PlayerAction.SellField playerInput index ->
       case Domain.playerSellsField playerInput index of
-        Nothing -> noEffect <| model
+        Nothing -> model
         Just ({amount, card}, player) ->
           let
             newDiscard = Array.append model.discard (Array.fromList <| List.repeat amount card)
           in
-            noEffect <|
-              { model |
-                players = updatePlayer player model.players,
-                discard = newDiscard }
+            { model |
+              players = updatePlayer player model.players,
+              discard = newDiscard }
     PlayerAction.DrawCardsToHand playerInput ->
        let
          (deck, player) = Domain.drawCardsToHand model.deck playerInput
        in
-        noEffect <|
           { model |
               players = updatePlayer player model.players,
               deck = deck }
     PlayerAction.KeepFromTrade playerInput i ->
-      noEffect <| updateWith model (Domain.keepFromTrade i playerInput)
+      updateWith model (Domain.keepFromTrade i playerInput)
     PlayerAction.TradeFromHand fromPlayerInput i toPlayerInput ->
       let
         (fromPlayer, toPlayer) = Domain.tradeFromHand fromPlayerInput i toPlayerInput
       in
-        noEffect <| { model | players = updatePlayers model.players (Array.fromList [fromPlayer, toPlayer]) }
+        { model | players = updatePlayers model.players (Array.fromList [fromPlayer, toPlayer]) }
     PlayerAction.Trade fromPlayerInput i toPlayerInput ->
       let
         (fromPlayer, toPlayer) = Domain.trade fromPlayerInput i toPlayerInput
       in
-        noEffect <| { model | players = updatePlayers model.players (Array.fromList [fromPlayer, toPlayer]) }
+        { model | players = updatePlayers model.players (Array.fromList [fromPlayer, toPlayer]) }
 
 init : (Model, Effects Action)
 init = (initialModel, Effects.tick Action.GetTime)
