@@ -7,10 +7,10 @@ import Util exposing (..)
 import Time exposing (Time)
 
 type alias Model = {
-    playTime: Time,
-    players: Array Player,
-    deck: Deck,
-    discard: Deck }
+  playTime: Time,
+  players: Array Player,
+  deck: Deck,
+  discard: Deck }
 
 type CardType = Coffee | Wax | Blue | Chili | Stink | Green | Soy | BlackEyed | Red | Garden | Cocoa
 
@@ -19,10 +19,8 @@ type alias Card = {
   cardType: CardType
 }
 
-type alias Index = Int
-
 type alias Deck = Array Card
-
+type alias Index = Int
 type alias Money = Int
 
 type alias Player = {
@@ -136,7 +134,8 @@ findMeterValue l totalCards =
 
 createDeck : List (Int, Card) -> Array Card
 createDeck listOfPairs =
-  Array.fromList <| List.concatMap (\(amount, card) -> List.repeat amount card) listOfPairs
+  Array.fromList <|
+    List.concatMap (\(amount, card) -> List.repeat amount card) listOfPairs
 
 shuffleDeck : Deck -> Random.Seed -> Deck
 shuffleDeck deck seed =
@@ -153,12 +152,12 @@ card name cardType = {
 plantTopmostCard : Player -> Player
 plantTopmostCard player =
   case Array.get 0 player.hand of
-      Nothing ->
-        player
-      Just first -> {
-        player |
-          fields = addToFields first player.fields,
-          hand = arrayDrop 1 player.hand }
+    Nothing ->
+      player
+    Just first -> {
+      player |
+        fields = addToFields first player.fields,
+        hand = arrayDrop 1 player.hand }
 
 plantFromSide: Player -> Index -> Player
 plantFromSide player cardIndex =

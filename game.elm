@@ -81,7 +81,8 @@ updatePlayerAction action model =
       updateWith model (Domain.plantFromSide playerInput index)
     PlayerAction.SellField playerInput index ->
       case Domain.playerSellsField playerInput index of
-        Nothing -> model
+        Nothing ->
+          model
         Just ({amount, card}, player) ->
           let
             newDiscard = Array.append model.discard (Array.fromList <| List.repeat amount card)
@@ -90,12 +91,12 @@ updatePlayerAction action model =
               players = updatePlayer player model.players,
               discard = newDiscard }
     PlayerAction.DrawCardsToHand playerInput ->
-       let
-         (deck, player) = Domain.drawCardsToHand model.deck playerInput
-       in
-          { model |
-              players = updatePlayer player model.players,
-              deck = deck }
+      let
+        (deck, player) = Domain.drawCardsToHand model.deck playerInput
+      in
+        { model |
+            players = updatePlayer player model.players,
+            deck = deck }
     PlayerAction.KeepFromTrade playerInput i ->
       updateWith model (Domain.keepFromTrade i playerInput)
     PlayerAction.TradeFromHand fromPlayerInput i toPlayerInput ->
