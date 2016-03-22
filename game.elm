@@ -119,7 +119,7 @@ view : Address Action -> Model -> Html
 view address model =
   let
     context = {
-      onClick = \playerAction -> onClick address (Action.PlayerAction playerAction)
+      newActionHandler = \handler -> \playerAction -> handler address (Action.PlayerAction playerAction)
     }
   in
     GameView.view context model

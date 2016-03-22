@@ -1,6 +1,6 @@
 module View where
 
-import UI exposing (Action)
+import UI
 import UI as PlayerAction exposing (PlayerAction)
 import Style           exposing (..)
 import Domain          exposing (..)
@@ -13,9 +13,16 @@ import VirtualDom      exposing (Property)
 import Array           exposing (..)
 import Time            exposing (..)
 
-type alias Context = {
+type alias Context a = {
+  newActionHandler : (Address a -> a -> Attribute) -> PlayerAction -> Property
+}
+
+type alias EnhancedContext = {
   onClick : PlayerAction -> Property
 }
+
+enhanced context = {
+    onClick = \playerAction -> context.newActionHandler onClick playerAction }
 
 cardContent : Card -> List Html -> List Html
 cardContent card buttons =
@@ -26,7 +33,7 @@ viewCard card =
   div [ class "card" ]
       (cardContent card [])
 
-fieldView : Context -> Player -> Index -> Field -> Html
+fieldView : EnhancedContext -> Player -> Index -> Field -> Html
 fieldView context player index field =
   let
     {amount, card} = field
@@ -91,7 +98,7 @@ priceMeterView cardType =
   in
     div [ class "priceMeter" ] priceColumns
 
-viewHand : Context -> List Player -> Player -> List Card -> List Html
+viewHand : EnhancedContext -> List Player -> Player -> List Card -> List Html
 viewHand context players player hand =
   let
     topmost = List.head hand
@@ -105,7 +112,7 @@ viewHand context players player hand =
   in
     List.append topmostView cardsUnderTopView
 
-sideView : Context -> List Player -> Player -> List Card -> List Html
+sideView : EnhancedContext -> List Player -> Player -> List Card -> List Html
 sideView context players player side =
   let
     sideCardView index card =
@@ -113,12 +120,12 @@ sideView context players player side =
   in
     List.indexedMap sideCardView side
 
-fieldsView : Context -> Player -> Array Field -> List Html
+fieldsView : EnhancedContext -> Player -> Array Field -> List Html
 fieldsView context player fields =
   let fv index field = div [ class "field" ] [fieldView context player index field]
   in Array.indexedMap fv fields |> Array.toList
 
-tradeView : Context -> List Player -> Player -> List Card -> List Html
+tradeView : EnhancedContext -> List Player -> Player -> List Card -> List Html
 tradeView context players player trade =
   let
     tradeCardView index card =
@@ -132,7 +139,7 @@ tradeView context players player trade =
   in
     List.indexedMap tradeCardView trade
 
-playerView : Context -> List Player -> Player -> List Html
+playerView : EnhancedContext -> List Player -> Player -> List Html
 playerView context players player =
   let
     (o1, o2) = otherElements players (\(i, p)  -> p.nick == player.nick)
@@ -163,8 +170,12 @@ timeView time =
           span [ class "seconds" ] [ text <| timeInSeconds ],
           text " seconds." ]
 
-view : Context -> Model -> Html
+view : Context a -> Model -> Html
 view context model =
+  doView (enhanced context) model
+
+doView : EnhancedContext -> Model -> Html
+doView context model =
   let
     playerList = Array.toList model.players
     deckView = div [ class "deck" ] (List.map viewCard (Array.toList model.deck))
