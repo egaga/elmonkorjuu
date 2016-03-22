@@ -13,7 +13,7 @@
 module Elmonkorjuu where
 
 import Style           exposing (..)
-import View            exposing (..)
+import View as GameView
 import Domain          exposing (..)
 import Html            exposing (..)
 import Html.Events     exposing (..)
@@ -22,6 +22,7 @@ import Signal          exposing (..)
 import StartApp
 import Util            exposing (..)
 import UI as Action exposing (Action)
+import UI as PlayerAction exposing (PlayerAction)
 import Random exposing (initialSeed)
 import Array exposing (..)
 import Effects exposing (Effects, Never)
@@ -66,16 +67,22 @@ update action model =
         newModel = { model | playTime = newTime }
       in
         (newModel, Effects.tick Action.GetTime)
-    Action.DrawCardsToTrade playerInput ->
+    Action.PlayerAction playerAction ->
+      updatePlayerAction playerAction model
+
+updatePlayerAction : Action.PlayerAction -> Model -> (Model, Effects Action)
+updatePlayerAction action model =
+  case action of
+    PlayerAction.DrawCardsToTrade playerInput ->
       let
         (deck, player) = Domain.drawCardsToTrade model.deck playerInput
       in
         noEffect <| { model | deck = deck, players = updatePlayer player model.players }
-    Action.PlantFromHand playerInput ->
+    PlayerAction.PlantFromHand playerInput ->
       noEffect <| updateWith model (Domain.plantTopmostCard playerInput)
-    Action.PlantFromSide playerInput index ->
+    PlayerAction.PlantFromSide playerInput index ->
       noEffect <| updateWith model (Domain.plantFromSide playerInput index)
-    Action.SellField playerInput index ->
+    PlayerAction.SellField playerInput index ->
       case Domain.playerSellsField playerInput index of
         Nothing -> noEffect <| model
         Just ({amount, card}, player) ->
@@ -86,7 +93,7 @@ update action model =
               { model |
                 players = updatePlayer player model.players,
                 discard = newDiscard }
-    Action.DrawCardsToHand playerInput ->
+    PlayerAction.DrawCardsToHand playerInput ->
        let
          (deck, player) = Domain.drawCardsToHand model.deck playerInput
        in
@@ -94,14 +101,14 @@ update action model =
           { model |
               players = updatePlayer player model.players,
               deck = deck }
-    Action.KeepFromTrade playerInput i ->
+    PlayerAction.KeepFromTrade playerInput i ->
       noEffect <| updateWith model (Domain.keepFromTrade i playerInput)
-    Action.TradeFromHand fromPlayerInput i toPlayerInput ->
+    PlayerAction.TradeFromHand fromPlayerInput i toPlayerInput ->
       let
         (fromPlayer, toPlayer) = Domain.tradeFromHand fromPlayerInput i toPlayerInput
       in
         noEffect <| { model | players = updatePlayers model.players (Array.fromList [fromPlayer, toPlayer]) }
-    Action.Trade fromPlayerInput i toPlayerInput ->
+    PlayerAction.Trade fromPlayerInput i toPlayerInput ->
       let
         (fromPlayer, toPlayer) = Domain.trade fromPlayerInput i toPlayerInput
       in
@@ -109,6 +116,15 @@ update action model =
 
 init : (Model, Effects Action)
 init = (initialModel, Effects.tick Action.GetTime)
+
+view : Address Action -> Model -> Html
+view address model =
+  let
+    context = {
+      onClick = \playerAction -> onClick address (Action.PlayerAction playerAction)
+    }
+  in
+    GameView.view context model
 
 app =
   StartApp.start

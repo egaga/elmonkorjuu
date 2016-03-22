@@ -3,7 +3,10 @@ module UI where
 import Domain exposing (..)
 import Time exposing (Time)
 
-type Action = DrawCardsToTrade Player
+type Action = GetTime Time | PlayerAction PlayerAction
+
+type PlayerAction =
+              DrawCardsToTrade Player
             | SellField Player Index
             | PlantFromHand Player
             | DrawCardsToHand Player
@@ -11,4 +14,3 @@ type Action = DrawCardsToTrade Player
             | PlantFromSide Player Index
             | TradeFromHand Player Index Player
             | Trade Player Index Player
-            | GetTime Time

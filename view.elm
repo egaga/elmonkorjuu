@@ -1,6 +1,7 @@
 module View where
 
-import UI as Action   exposing (Action)
+import UI exposing (Action)
+import UI as PlayerAction exposing (PlayerAction)
 import Style           exposing (..)
 import Domain          exposing (..)
 import Html            exposing (..)
@@ -12,6 +13,11 @@ import VirtualDom      exposing (Property)
 import Array           exposing (..)
 import Time            exposing (..)
 
+type alias Context = {
+  onClick : PlayerAction -> Property
+}
+
+cardContent : Card -> List Html -> List Html
 cardContent card buttons =
     List.append buttons [ text card.name, priceMeterView card.cardType ]
 
@@ -20,53 +26,53 @@ viewCard card =
   div [ class "card" ]
       (cardContent card [])
 
-fieldView : Address Action.Action -> Player -> Index -> Field -> Html
-fieldView address player index field =
+fieldView : Context -> Player -> Index -> Field -> Html
+fieldView context player index field =
   let
     {amount, card} = field
     cardText = text (card.name ++ " (" ++ (toString amount) ++")")
     sellAmount = Domain.sellPrice amount card.cardType
-    sellButton = button [ onClick address (Action.SellField player index) ] [ text ("Sell $" ++ (toString sellAmount)) ]
+    sellButton = button [ context.onClick (PlayerAction.SellField player index) ] [ text ("Sell $" ++ (toString sellAmount)) ]
   in
     div [ class "card" ] [ cardText, sellButton, priceMeterView card.cardType ]
 
-tradeButtonsView address players player cardIndex =
+tradeButtonsView context players player cardIndex =
   let
     tradeForPlayer toPlayer =
       button [ class "tradeButton",
-               onClick address (Action.Trade player cardIndex toPlayer) ]
+               context.onClick (PlayerAction.Trade player cardIndex toPlayer) ]
              [ text ("to " ++ toPlayer.nick) ]
   in
     List.map tradeForPlayer players
 
-tradeFromHandButtonsView address players player cardIndex =
+tradeFromHandButtonsView context players player cardIndex =
   let
     tradeForPlayer toPlayer =
       button [ class "tradeButton",
-               onClick address (Action.TradeFromHand player cardIndex toPlayer) ]
+               context.onClick (PlayerAction.TradeFromHand player cardIndex toPlayer) ]
              [ text ("to " ++ toPlayer.nick) ]
   in
     List.map tradeForPlayer players
 
-plantButton address player =
+plantButton context player =
   button [ class "plantButton",
-           onClick address (Action.PlantFromHand player) ]
+           context.onClick (PlayerAction.PlantFromHand player) ]
          [ text ("Plant") ]
 
-plantSideButton address player index =
+plantSideButton context player index =
   button [ class "plantButton",
-           onClick address (Action.PlantFromSide player index) ]
+           context.onClick (PlayerAction.PlantFromSide player index) ]
          [ text ("Plant") ]
 
-keepButton address player index =
-  button [ onClick address (Action.KeepFromTrade player index) ]
+keepButton context player index =
+  button [ context.onClick (PlayerAction.KeepFromTrade player index) ]
          [ text ("Keep") ]
 
-viewTopMostHandCard address players player card =
+viewTopMostHandCard context players player card =
   let
     cardIndex = 0
-    tradeButtons = tradeFromHandButtonsView address players player cardIndex
-    buttons = (plantButton address player) :: tradeButtons
+    tradeButtons = tradeFromHandButtonsView context players player cardIndex
+    buttons = (plantButton context player) :: tradeButtons
   in
     div [ class "card" ] (cardContent card buttons)
 
@@ -85,40 +91,40 @@ priceMeterView cardType =
   in
     div [ class "priceMeter" ] priceColumns
 
-viewHand : Address Action.Action -> List Player -> Player -> List Card -> List Html
-viewHand address players player hand =
+viewHand : Context -> List Player -> Player -> List Card -> List Html
+viewHand context players player hand =
   let
     topmost = List.head hand
-    topmostView = mapMaybeToList (viewTopMostHandCard address players player) topmost
+    topmostView = mapMaybeToList (viewTopMostHandCard context players player) topmost
     cardWithTrades cardIndex card =
       div [ class "card" ]
-          (cardContent card (tradeFromHandButtonsView address players player cardIndex))
+          (cardContent card (tradeFromHandButtonsView context players player cardIndex))
 
     -- note: indexing contains the first hand so that the rest get correct hand index
     cardsUnderTopView = List.drop 1 (List.indexedMap cardWithTrades hand)
   in
     List.append topmostView cardsUnderTopView
 
-sideView : Address Action.Action -> List Player -> Player -> List Card -> List Html
-sideView address players player side =
+sideView : Context -> List Player -> Player -> List Card -> List Html
+sideView context players player side =
   let
     sideCardView index card =
-      div [ class "card" ] (cardContent card [ plantSideButton address player index ])
+      div [ class "card" ] (cardContent card [ plantSideButton context player index ])
   in
     List.indexedMap sideCardView side
 
-fieldsView : Address Action.Action -> Player -> Array Field -> List Html
-fieldsView address player fields =
-  let fv index field = div [ class "field" ] [fieldView address player index field]
+fieldsView : Context -> Player -> Array Field -> List Html
+fieldsView context player fields =
+  let fv index field = div [ class "field" ] [fieldView context player index field]
   in Array.indexedMap fv fields |> Array.toList
 
-tradeView : Address Action.Action -> List Player -> Player -> List Card -> List Html
-tradeView address players player trade =
+tradeView : Context -> List Player -> Player -> List Card -> List Html
+tradeView context players player trade =
   let
     tradeCardView index card =
       let
-        tradeButtons = tradeButtonsView address players player index
-        keepBtn = keepButton address player index
+        tradeButtons = tradeButtonsView context players player index
+        keepBtn = keepButton context player index
         tradeViewContent = cardContent card (keepBtn :: tradeButtons)
         iv = div [] [ text (toString index) ]
       in
@@ -126,8 +132,8 @@ tradeView address players player trade =
   in
     List.indexedMap tradeCardView trade
 
-playerView : Address Action.Action -> List Player -> Player -> List Html
-playerView address players player =
+playerView : Context -> List Player -> Player -> List Html
+playerView context players player =
   let
     (o1, o2) = otherElements players (\(i, p)  -> p.nick == player.nick)
     otherPlayers = List.append o1 o2
@@ -136,15 +142,15 @@ playerView address players player =
       text ("Player: " ++ player.nick),
       span [ class "money" ] [ text ("Money: " ++ (toString player.money)) ]
     ],
-    button [ onClick address (Action.DrawCardsToTrade player) ] [ text "Draw cards for trade" ],
-    button [ onClick address (Action.DrawCardsToHand player) ] [ text "Draw cards to hand" ],
+    button [ context.onClick (PlayerAction.DrawCardsToTrade player) ] [ text "Draw cards for trade" ],
+    button [ context.onClick (PlayerAction.DrawCardsToHand player) ] [ text "Draw cards to hand" ],
     div [ class "fields-and-hand" ] [
-      div [ class "fields" ] (fieldsView address player player.fields),
-      div [ class "hand" ] (viewHand address otherPlayers player (Array.toList player.hand))
+      div [ class "fields" ] (fieldsView context player player.fields),
+      div [ class "hand" ] (viewHand context otherPlayers player (Array.toList player.hand))
     ],
     div [ class "trading"] [
-      div [ class "trade" ] (tradeView address otherPlayers player (Array.toList player.trade)),
-      div [ class "side" ] (sideView address otherPlayers player (Array.toList player.side)) ]
+      div [ class "trade" ] (tradeView context otherPlayers player (Array.toList player.trade)),
+      div [ class "side" ] (sideView context otherPlayers player (Array.toList player.side)) ]
     ]
 
 timeView : Time -> Html
@@ -157,13 +163,13 @@ timeView time =
           span [ class "seconds" ] [ text <| timeInSeconds ],
           text " seconds." ]
 
-view : Address Action.Action -> Model -> Html
-view address model =
+view : Context -> Model -> Html
+view context model =
   let
     playerList = Array.toList model.players
     deckView = div [ class "deck" ] (List.map viewCard (Array.toList model.deck))
     discardView = div [ class "discard" ] (List.map viewCard (Array.toList model.discard))
-    playersView = List.concatMap (playerView address playerList) playerList
+    playersView = List.concatMap (playerView context playerList) playerList
     gameView = stylesheet :: timeView model.playTime :: deckView :: discardView :: playersView
   in
     div [ class "game-view" ] gameView
