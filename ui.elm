@@ -1,4 +1,4 @@
-module UI where
+module UI exposing (..)
 
 import Domain exposing (..)
 import Time exposing (Time)

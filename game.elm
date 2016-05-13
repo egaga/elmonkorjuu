@@ -10,24 +10,23 @@
 -- Code (actions, etc) could be split hierarchically so that code consists of components:
 -- a component itself would be similar to a small Elm program with update, view and model functions
 
-module Elmonkorjuu where
+module Elmonkorjuu exposing (..)
 
 import View as GameView
 import Domain          exposing (..)
 import Html            exposing (..)
-import Signal          exposing (..)
-import StartApp
+import Html.App as HtmlApp
 import Util            exposing (..)
 import UI as Action exposing (Action)
 import UI as PlayerAction exposing (PlayerAction)
 import Random exposing (initialSeed)
 import Array exposing (..)
-import Effects exposing (Effects, Never)
 import Time exposing (Time, second)
 import Task
 
 -- TODO get seed from mousemovements&time
-shuffledDeck = Domain.shuffleDeck Domain.allCards (Random.initialSeed 10)
+-- shuffledDeck = Domain.shuffleDeck Domain.allCards (Random.initialSeed 10)
+shuffledDeck = Domain.allCards --TODO when mgold/random-sample is upgraded to support elm 0.17
 
 initialModel : Model
 initialModel =
@@ -35,7 +34,8 @@ initialModel =
     (deck, players) = startGameWithPlayers shuffledDeck ["Pasi", "Anssi", "Henkka"]
   in
     {
-      playTime = 0,
+      startTime = Nothing,
+      currentTime = 0,
       players = players,
       deck = deck,
       discard = Array.empty }
@@ -52,18 +52,21 @@ updateWith : Model -> Player -> Model
 updateWith model player =
   { model | players = updatePlayer player model.players }
 
-noEffect : Model -> (Model, Effects Action)
+noEffect : Model -> (Model, Cmd Action)
 noEffect model =
-  (model, Effects.none)
+  (model, Cmd.none)
 
-update : Action -> Model -> (Model, Effects Action)
+update : Action -> Model -> (Model, Cmd Action)
 update action model =
   case action of
     Action.GetTime newTime ->
       let
-        newModel = { model | playTime = newTime }
+        newModel = {
+          model |
+            startTime = (Just (Maybe.withDefault newTime model.startTime)),
+            currentTime = newTime }
       in
-        (newModel, Effects.tick Action.GetTime)
+        (newModel, Cmd.none)
     Action.PlayerAction playerAction ->
       noEffect <| updatePlayerAction playerAction model
 
@@ -110,29 +113,21 @@ updatePlayerAction action model =
       in
         { model | players = updatePlayers model.players (Array.fromList [fromPlayer, toPlayer]) }
 
-init : (Model, Effects Action)
-init = (initialModel, Effects.tick Action.GetTime)
+init : (Model, Cmd Action)
+init = (initialModel, Cmd.none)
+--init = (initialModel, Action.GetTime)
 
-view : Address Action -> Model -> Html
-view address model =
-  let
-    context = {
-      newActionHandler = \handler -> \playerAction -> handler address (Action.PlayerAction playerAction)
-    }
-  in
-    GameView.view context model
+view : Model -> (Html Action)
+view model =
+  GameView.view model
 
-app =
-  StartApp.start
+subscriptions : Model -> Sub Action
+subscriptions model =
+  Time.every second Action.GetTime
+
+main =
+  HtmlApp.program
     { init = init,
       view = view,
       update = update,
-      inputs = [] }
-
-main =
-  app.html
-
--- Perform tasks
-port tasks : Signal (Task.Task Never ())
-port tasks =
-  app.tasks
+      subscriptions = subscriptions }

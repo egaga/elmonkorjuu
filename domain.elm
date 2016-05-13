@@ -1,13 +1,14 @@
-module Domain where
+module Domain exposing (..)
 
-import Random exposing (initialSeed)
-import Random.Array exposing (..)
+-- import Random exposing (initialSeed)
+-- import Random.Array exposing (..)
 import Array exposing (..)
 import Util exposing (..)
 import Time exposing (Time)
 
 type alias Model = {
-  playTime: Time,
+  startTime: Maybe Time,
+  currentTime: Time,
   players: Array Player,
   deck: Deck,
   discard: Deck }
@@ -137,12 +138,14 @@ createDeck listOfPairs =
   Array.fromList <|
     List.concatMap (\(amount, card) -> List.repeat amount card) listOfPairs
 
+{- TODO use random-sample package when available for 0.17
 shuffleDeck : Deck -> Random.Seed -> Deck
 shuffleDeck deck seed =
   let
     (shuffledDeck, newSeed) = Random.Array.shuffle seed allCards
   in
     shuffledDeck
+-}
 
 card : String -> CardType -> Card
 card name cardType = {

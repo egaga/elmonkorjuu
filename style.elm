@@ -1,4 +1,4 @@
-module Style where
+module Style exposing (..)
 
 import Html            exposing (..)
 import Html.Events     exposing (..)
