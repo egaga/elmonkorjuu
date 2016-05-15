@@ -7,33 +7,11 @@ import Array exposing (..)
 import Time exposing (Time, second)
 import Util exposing (updateElement)
 
-updatePlayer : Player -> Array Player -> Array Player
-updatePlayer player players =
-  updateElement players player (\(i, p)  -> p.nick == player.nick)
-
-updatePlayers : Array Player -> Array Player -> Array Player
-updatePlayers players updatedPlayers =
-  Array.foldl updatePlayer players updatedPlayers
-
-updateWith : Model -> Player -> Model
-updateWith model player =
-  { model | players = updatePlayer player model.players }
-
-noEffect : Model -> (Model, Cmd Msg)
-noEffect model =
-  (model, Cmd.none)
-
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     Msg.GetTime newTime ->
-      let
-        newModel = {
-          model |
-            startTime = (Just (Maybe.withDefault newTime model.startTime)),
-            currentTime = newTime }
-      in
-        (newModel, Cmd.none)
+      (updateTime model newTime, Cmd.none)
     Msg.PlayerAction playerAction ->
       noEffect <| updatePlayerAction playerAction model
 
@@ -79,3 +57,25 @@ updatePlayerAction action model =
         (fromPlayer, toPlayer) = Domain.trade fromPlayerInput i toPlayerInput
       in
         { model | players = updatePlayers model.players (Array.fromList [fromPlayer, toPlayer]) }
+
+updatePlayer : Player -> Array Player -> Array Player
+updatePlayer player players =
+  updateElement players player (\(i, p)  -> p.nick == player.nick)
+
+updatePlayers : Array Player -> Array Player -> Array Player
+updatePlayers players updatedPlayers =
+  Array.foldl updatePlayer players updatedPlayers
+
+updateWith : Model -> Player -> Model
+updateWith model player =
+  { model | players = updatePlayer player model.players }
+
+noEffect : Model -> (Model, Cmd Msg)
+noEffect model =
+  (model, Cmd.none)
+
+updateTime: Model -> Time -> Model
+updateTime model newTime =
+  { model |
+      startTime = (Just (Maybe.withDefault newTime model.startTime)),
+      currentTime = newTime }
