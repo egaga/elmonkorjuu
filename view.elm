@@ -12,7 +12,8 @@ import Util            exposing (..)
 import Array           exposing (..)
 import Time            exposing (..)
 
-onClickPromote action = onClick (UI.PlayerAction action)
+onClickDo: PlayerAction -> Attribute Msg
+onClickDo action = onClick (UI.PlayerAction action)
 
 cardContent : Card -> List (Html Msg) -> List (Html Msg)
 cardContent card buttons =
@@ -29,7 +30,7 @@ fieldView player index field =
     {amount, card} = field
     cardText = text (card.name ++ " (" ++ (toString amount) ++")")
     sellAmount = Domain.sellPrice amount card.cardType
-    sellButton = button [ onClickPromote (PlayerAction.SellField player index) ] [ text ("Sell $" ++ (toString sellAmount)) ]
+    sellButton = button [ onClickDo (PlayerAction.SellField player index) ] [ text ("Sell $" ++ (toString sellAmount)) ]
   in
     div [ class "card" ] [ cardText, sellButton, priceMeterView card.cardType ]
 
@@ -37,7 +38,7 @@ tradeButtonsView players player cardIndex =
   let
     tradeForPlayer toPlayer =
       button [ class "tradeButton",
-               onClickPromote (PlayerAction.Trade player cardIndex toPlayer) ]
+               onClickDo (PlayerAction.Trade player cardIndex toPlayer) ]
              [ text ("to " ++ toPlayer.nick) ]
   in
     List.map tradeForPlayer players
@@ -46,23 +47,23 @@ tradeFromHandButtonsView players player cardIndex =
   let
     tradeForPlayer toPlayer =
       button [ class "tradeButton",
-               onClickPromote (PlayerAction.TradeFromHand player cardIndex toPlayer) ]
+               onClickDo (PlayerAction.TradeFromHand player cardIndex toPlayer) ]
              [ text ("to " ++ toPlayer.nick) ]
   in
     List.map tradeForPlayer players
 
 plantButton player =
   button [ class "plantButton",
-           onClickPromote (PlayerAction.PlantFromHand player) ]
+           onClickDo (PlayerAction.PlantFromHand player) ]
          [ text ("Plant") ]
 
 plantSideButton player index =
   button [ class "plantButton",
-           onClickPromote (PlayerAction.PlantFromSide player index) ]
+           onClickDo (PlayerAction.PlantFromSide player index) ]
          [ text ("Plant") ]
 
 keepButton player index =
-  button [ onClickPromote (PlayerAction.KeepFromTrade player index) ]
+  button [ onClickDo (PlayerAction.KeepFromTrade player index) ]
          [ text ("Keep") ]
 
 viewTopMostHandCard players player card =
@@ -139,8 +140,8 @@ playerView players player =
       text ("Player: " ++ player.nick),
       span [ class "money" ] [ text ("Money: " ++ (toString player.money)) ]
     ],
-    button [ onClickPromote (PlayerAction.DrawCardsToTrade player) ] [ text "Draw cards for trade" ],
-    button [ onClickPromote (PlayerAction.DrawCardsToHand player) ] [ text "Draw cards to hand" ],
+    button [ onClickDo (PlayerAction.DrawCardsToTrade player) ] [ text "Draw cards for trade" ],
+    button [ onClickDo (PlayerAction.DrawCardsToHand player) ] [ text "Draw cards to hand" ],
     div [ class "fields-and-hand" ] [
       div [ class "fields" ] (fieldsView player player.fields),
       div [ class "hand" ] (viewHand otherPlayers player (Array.toList player.hand))
