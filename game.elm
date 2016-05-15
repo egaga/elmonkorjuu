@@ -13,17 +13,14 @@
 module Elmonkorjuu exposing (..)
 
 import View as GameView
-import Domain          exposing (..)
+import Domain          exposing (Model, startGameWithPlayers)
 import Html            exposing (..)
 import Html.App as HtmlApp
-import Util            exposing (..)
 import UI as Msg exposing (Msg)
-import UI as PlayerAction exposing (PlayerAction)
 import Random exposing (initialSeed)
-import Array exposing (..)
+import Array exposing (empty)
 import Time exposing (Time, second)
 import Update exposing (update)
-import Task
 
 -- TODO get seed from mousemovements&time
 -- shuffledDeck = Domain.shuffleDeck Domain.allCards (Random.initialSeed 10)
@@ -41,22 +38,13 @@ initialModel =
       deck = deck,
       discard = Array.empty }
 
-
-init : (Model, Cmd Msg)
-init = (initialModel, Cmd.none)
---init = (initialModel, Action.GetTime)
-
-view : Model -> (Html Msg)
-view model =
-  GameView.view model
-
 subscriptions : Model -> Sub Msg
 subscriptions model =
   Time.every second Msg.GetTime
 
 main =
   HtmlApp.program
-    { init = init,
-      view = view,
+    { init = (initialModel, Cmd.none),
+      view = GameView.view,
       update = Update.update,
       subscriptions = subscriptions }
