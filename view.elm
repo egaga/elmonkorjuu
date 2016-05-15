@@ -1,7 +1,7 @@
 module View exposing (view)
 
 import UI
-import UI as Action exposing (Action)
+import UI as Msg exposing (Msg)
 import UI as PlayerAction exposing (PlayerAction)
 import Style           exposing (..)
 import Domain          exposing (..)
@@ -14,16 +14,16 @@ import Time            exposing (..)
 
 onClickPromote action = onClick (UI.PlayerAction action)
 
-cardContent : Card -> List (Html Action) -> List (Html Action)
+cardContent : Card -> List (Html Msg) -> List (Html Msg)
 cardContent card buttons =
     List.append buttons [ text card.name, priceMeterView card.cardType ]
 
-viewCard : Card -> (Html Action)
+viewCard : Card -> Html Msg
 viewCard card =
   div [ class "card" ]
       (cardContent card [])
 
-fieldView : Player -> Index -> Field -> (Html Action)
+fieldView : Player -> Index -> Field -> Html Msg
 fieldView player index field =
   let
     {amount, card} = field
@@ -80,7 +80,7 @@ amountToPriceView {amount, money} =
         div [ class "meterLimit" ]
             [ text (toString amount)] ]
 
-priceMeterView : CardType -> (Html Action)
+priceMeterView : CardType -> Html Msg
 priceMeterView cardType =
   let
     meterList = Domain.priceMeterList cardType
@@ -88,7 +88,7 @@ priceMeterView cardType =
   in
     div [ class "priceMeter" ] priceColumns
 
-viewHand : List Player -> Player -> List Card -> List (Html Action)
+viewHand : List Player -> Player -> List Card -> List (Html Msg)
 viewHand players player hand =
   let
     topmost = List.head hand
@@ -102,7 +102,7 @@ viewHand players player hand =
   in
     List.append topmostView cardsUnderTopView
 
-sideView : List Player -> Player -> List Card -> List (Html Action)
+sideView : List Player -> Player -> List Card -> List (Html Msg)
 sideView players player side =
   let
     sideCardView index card =
@@ -110,12 +110,12 @@ sideView players player side =
   in
     List.indexedMap sideCardView side
 
-fieldsView : Player -> Array Field -> List (Html Action)
+fieldsView : Player -> Array Field -> List (Html Msg)
 fieldsView player fields =
   let fv index field = div [ class "field" ] [fieldView player index field]
   in Array.indexedMap fv fields |> Array.toList
 
-tradeView : List Player -> Player -> List Card -> List (Html Action)
+tradeView : List Player -> Player -> List Card -> List (Html Msg)
 tradeView players player trade =
   let
     tradeCardView index card =
@@ -129,7 +129,7 @@ tradeView players player trade =
   in
     List.indexedMap tradeCardView trade
 
-playerView : List Player -> Player -> List (Html Action)
+playerView : List Player -> Player -> List (Html Msg)
 playerView players player =
   let
     (o1, o2) = otherElements players (\(i, p)  -> p.nick == player.nick)
@@ -150,7 +150,7 @@ playerView players player =
       div [ class "side" ] (sideView otherPlayers player (Array.toList player.side)) ]
     ]
 
-timeView : Maybe Time -> Time -> (Html Action)
+timeView : Maybe Time -> Time -> Html Msg
 timeView startTime currentTime =
   let
     playTime = Maybe.withDefault 0 (Maybe.map (\start -> currentTime - start) startTime)
@@ -161,7 +161,7 @@ timeView startTime currentTime =
           span [ class "seconds" ] [ text <| timeInSeconds ],
           text " seconds." ]
 
-view : Model -> (Html Action)
+view : Model -> Html Msg
 view model =
   let
     playerList = Array.toList model.players

@@ -17,7 +17,7 @@ import Domain          exposing (..)
 import Html            exposing (..)
 import Html.App as HtmlApp
 import Util            exposing (..)
-import UI as Action exposing (Action)
+import UI as Msg exposing (Msg)
 import UI as PlayerAction exposing (PlayerAction)
 import Random exposing (initialSeed)
 import Array exposing (..)
@@ -52,14 +52,14 @@ updateWith : Model -> Player -> Model
 updateWith model player =
   { model | players = updatePlayer player model.players }
 
-noEffect : Model -> (Model, Cmd Action)
+noEffect : Model -> (Model, Cmd Msg)
 noEffect model =
   (model, Cmd.none)
 
-update : Action -> Model -> (Model, Cmd Action)
-update action model =
-  case action of
-    Action.GetTime newTime ->
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+  case msg of
+    Msg.GetTime newTime ->
       let
         newModel = {
           model |
@@ -67,10 +67,10 @@ update action model =
             currentTime = newTime }
       in
         (newModel, Cmd.none)
-    Action.PlayerAction playerAction ->
+    Msg.PlayerAction playerAction ->
       noEffect <| updatePlayerAction playerAction model
 
-updatePlayerAction : Action.PlayerAction -> Model -> Model
+updatePlayerAction : Msg.PlayerAction -> Model -> Model
 updatePlayerAction action model =
   case action of
     PlayerAction.DrawCardsToTrade playerInput ->
@@ -113,17 +113,17 @@ updatePlayerAction action model =
       in
         { model | players = updatePlayers model.players (Array.fromList [fromPlayer, toPlayer]) }
 
-init : (Model, Cmd Action)
+init : (Model, Cmd Msg)
 init = (initialModel, Cmd.none)
 --init = (initialModel, Action.GetTime)
 
-view : Model -> (Html Action)
+view : Model -> (Html Msg)
 view model =
   GameView.view model
 
-subscriptions : Model -> Sub Action
+subscriptions : Model -> Sub Msg
 subscriptions model =
-  Time.every second Action.GetTime
+  Time.every second Msg.GetTime
 
 main =
   HtmlApp.program

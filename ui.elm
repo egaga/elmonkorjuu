@@ -3,7 +3,7 @@ module UI exposing (..)
 import Domain exposing (..)
 import Time exposing (Time)
 
-type Action = GetTime Time | PlayerAction PlayerAction
+type Msg = GetTime Time | PlayerAction PlayerAction
 
 type PlayerAction =
               DrawCardsToTrade Player
