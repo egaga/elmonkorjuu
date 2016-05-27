@@ -1,3 +1,3 @@
 #!/bin/sh
-elm make game.elm --output=game.html
+elm make game.elm --yes --output=game.html
 
