@@ -1,19 +1,18 @@
 module View exposing (view)
 
-import UI
 import UI as Msg exposing (Msg)
 import UI as PlayerAction exposing (PlayerAction)
-import Style           exposing (..)
+import Style           exposing (stylesheet)
 import Domain          exposing (..)
 import Html            exposing (..)
-import Html.Events     exposing (..)
 import Html.Attributes exposing (..)
-import Util            exposing (..)
-import Array           exposing (..)
-import Time            exposing (..)
+import Html.Events     exposing (onClick)
+import Util            exposing (mapMaybeToList, otherElements)
+import Array           exposing (Array)
+import Time            exposing (Time)
 
 onClickDo: PlayerAction -> Attribute Msg
-onClickDo action = onClick (UI.PlayerAction action)
+onClickDo action = onClick (PlayerAction.PlayerAction action)
 
 cardContent : Card -> List (Html Msg) -> List (Html Msg)
 cardContent card buttons =

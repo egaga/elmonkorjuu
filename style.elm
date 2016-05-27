@@ -1,7 +1,6 @@
-module Style exposing (..)
+module Style exposing (stylesheet)
 
 import Html            exposing (..)
-import Html.Events     exposing (..)
 import Html.Attributes exposing (..)
 
 stylesheet =

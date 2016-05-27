@@ -1,9 +1,9 @@
 module Domain exposing (..)
 
 import Random exposing (initialSeed)
-import Random.Array exposing (..)
-import Array exposing (..)
-import Util exposing (..)
+import Random.Array
+import Array exposing (Array)
+import Util exposing (asplitByIndex, arrayDrop, arrayReverse)
 import Time exposing (Time)
 
 type alias Model = {

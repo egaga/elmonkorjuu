@@ -14,7 +14,6 @@ module Elmonkorjuu exposing (..)
 
 import View as GameView
 import Domain          exposing (Model, startGameWithPlayers)
-import Html            exposing (..)
 import Html.App as HtmlApp
 import UI as Msg exposing (Msg)
 import Random exposing (initialSeed)

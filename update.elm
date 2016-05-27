@@ -1,9 +1,9 @@
 module Update exposing (update)
 
-import Domain exposing (..)
+import Domain exposing (Model, Player)
 import UI as Msg exposing (Msg)
 import UI as PlayerAction exposing (PlayerAction)
-import Array exposing (..)
+import Array exposing (Array)
 import Time exposing (Time, second)
 import Util exposing (updateElement)
 

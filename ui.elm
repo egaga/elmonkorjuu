@@ -1,6 +1,6 @@
 module UI exposing (..)
 
-import Domain exposing (..)
+import Domain exposing (Player, Index)
 import Time exposing (Time)
 
 type Msg = GetTime Time | PlayerAction PlayerAction

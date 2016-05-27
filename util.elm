@@ -1,6 +1,6 @@
 module Util exposing (..)
 
-import Array exposing (..)
+import Array exposing (Array)
 
 maybeToList : Maybe a -> List a
 maybeToList m =
