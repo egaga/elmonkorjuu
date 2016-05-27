@@ -1,7 +1,7 @@
 module Domain exposing (..)
 
--- import Random exposing (initialSeed)
--- import Random.Array exposing (..)
+import Random exposing (initialSeed)
+import Random.Array exposing (..)
 import Array exposing (..)
 import Util exposing (..)
 import Time exposing (Time)
@@ -138,14 +138,12 @@ createDeck listOfPairs =
   Array.fromList <|
     List.concatMap (\(amount, card) -> List.repeat amount card) listOfPairs
 
-{- TODO use random-sample package when available for 0.17
-shuffleDeck : Deck -> Random.Seed -> Deck
-shuffleDeck deck seed =
+shuffleDeck : Deck -> Random.Generator (Deck)
+shuffleDeck deck =
   let
-    (shuffledDeck, newSeed) = Random.Array.shuffle seed allCards
+    shuffledDeck = Random.Array.shuffle allCards
   in
     shuffledDeck
--}
 
 card : String -> CardType -> Card
 card name cardType = {

@@ -22,10 +22,6 @@ import Array exposing (empty)
 import Time exposing (Time, second)
 import Update exposing (update)
 
--- TODO get seed from mousemovements&time
--- shuffledDeck = Domain.shuffleDeck Domain.allCards (Random.initialSeed 10)
-shuffledDeck = Domain.allCards --TODO when mgold/random-sample is upgraded to support elm 0.17
-
 initialModel : Model
 initialModel =
   let
@@ -37,6 +33,13 @@ initialModel =
       players = players,
       deck = deck,
       discard = Array.empty }
+
+(shuffledDeck, seed) =
+  let
+    seedValue = 1525 -- TODO get seed from mousemovements&time
+    shuffledDeckGenerator = Domain.shuffleDeck Domain.allCards
+  in
+    Random.step shuffledDeckGenerator (initialSeed seedValue)
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
