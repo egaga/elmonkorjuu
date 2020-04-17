@@ -214,11 +214,17 @@ playerView players player =
 timeView : Maybe Posix -> Posix -> Html Msg
 timeView startTime currentTime =
     let
+        currentM =
+            Time.posixToMillis currentTime
+
+        startM =
+            Maybe.map Time.posixToMillis startTime
+
         playTime =
-            Maybe.withDefault 0 (Maybe.map (\start -> currentTime - start) startTime)
+            Maybe.withDefault 0 (Maybe.map (\start -> currentM - start) startM)
 
         timeInSeconds =
-            Time.inSeconds playTime |> round |> toString
+            playTime // 1000 |> String.fromInt
     in
     div [ class "time" ]
         [ text "Play time: "
