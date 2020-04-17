@@ -15,7 +15,7 @@ import Array exposing (empty)
 import Domain exposing (Model, startGameWithPlayers)
 import Html
 import Random exposing (initialSeed)
-import Time exposing (Time, second)
+import Time
 import UI as Msg exposing (Msg)
 import Update exposing (update)
 import View as GameView
@@ -31,7 +31,7 @@ initialModel =
             initDeck
     in
     { startTime = Nothing
-    , currentTime = 0
+    , currentTime = Time.millisToPosix 0
     , players = players
     , deck = deck
     , discard = Array.empty
@@ -52,7 +52,7 @@ initDeck =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Time.every second Msg.GetTime
+    Time.every 1000 Msg.GetTime
 
 
 main =
