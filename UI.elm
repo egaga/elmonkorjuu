@@ -1,11 +1,11 @@
 module UI exposing (..)
 
 import Domain exposing (Index, Player)
-import Time exposing (Time)
+import Time exposing (Posix)
 
 
 type Msg
-    = GetTime Time
+    = GetTime Posix
     | PlayerAction PlayerAction
 
 

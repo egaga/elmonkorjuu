@@ -2,7 +2,7 @@ module Update exposing (update)
 
 import Array exposing (Array)
 import Domain exposing (Model, Player)
-import Time exposing (Time, second)
+import Time exposing (Posix)
 import UI as PlayerAction exposing (Msg, PlayerAction)
 import Util exposing (updateElement)
 
@@ -96,7 +96,7 @@ noEffect model =
     ( model, Cmd.none )
 
 
-updateTime : Model -> Time -> Model
+updateTime : Model -> Posix -> Model
 updateTime model newTime =
     { model
         | startTime = Just (Maybe.withDefault newTime model.startTime)

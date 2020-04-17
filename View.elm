@@ -6,7 +6,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Style exposing (stylesheet)
-import Time exposing (Time)
+import Time exposing (Posix)
 import UI as PlayerAction exposing (Msg, PlayerAction)
 import Util exposing (mapMaybeToList, otherElements)
 
@@ -211,7 +211,7 @@ playerView players player =
     ]
 
 
-timeView : Maybe Time -> Time -> Html Msg
+timeView : Maybe Posix -> Posix -> Html Msg
 timeView startTime currentTime =
     let
         playTime =
