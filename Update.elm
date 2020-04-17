@@ -3,21 +3,21 @@ module Update exposing (update)
 import Array exposing (Array)
 import Domain exposing (Model, Player)
 import Time exposing (Posix)
-import UI as PlayerAction exposing (Msg, PlayerAction)
+import UI as PlayerAction exposing (Msg(..), PlayerAction)
 import Util exposing (updateElement)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Msg.GetTime newTime ->
+        GetTime newTime ->
             ( updateTime model newTime, Cmd.none )
 
-        Msg.PlayerAction playerAction ->
+        PlayerAction playerAction ->
             noEffect <| updatePlayerAction playerAction model
 
 
-updatePlayerAction : Msg.PlayerAction -> Model -> Model
+updatePlayerAction : PlayerAction -> Model -> Model
 updatePlayerAction action model =
     case action of
         PlayerAction.DrawCardsToTrade playerInput ->
