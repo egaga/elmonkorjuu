@@ -9,7 +9,7 @@
 -- a component itself would be similar to a small Elm program with update, view and model functions
 
 
-module Elmonkorjuu exposing (..)
+module Game exposing (..)
 
 import Array exposing (empty)
 import Domain exposing (Model, startGameWithPlayers)
@@ -26,6 +26,7 @@ initialModel =
     let
         ( deck, players ) =
             startGameWithPlayers shuffledDeck [ "Pasi", "Anssi", "Henkka" ]
+        ( shuffledDeck, seed ) = initDeck
     in
     { startTime = Nothing
     , currentTime = 0
@@ -35,7 +36,7 @@ initialModel =
     }
 
 
-( shuffledDeck, seed ) =
+initDeck = 
     let
         seedValue =
             1525
