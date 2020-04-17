@@ -26,7 +26,9 @@ initialModel =
     let
         ( deck, players ) =
             startGameWithPlayers shuffledDeck [ "Pasi", "Anssi", "Henkka" ]
-        ( shuffledDeck, seed ) = initDeck
+
+        ( shuffledDeck, seed ) =
+            initDeck
     in
     { startTime = Nothing
     , currentTime = 0
@@ -36,7 +38,7 @@ initialModel =
     }
 
 
-initDeck = 
+initDeck =
     let
         seedValue =
             1525
