@@ -1,6 +1,7 @@
 module View exposing (view)
 
 import Array exposing (Array)
+import Browser exposing (Document)
 import Domain exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -233,7 +234,7 @@ timeView startTime currentTime =
         ]
 
 
-view : Model -> Html Msg
+view : Model -> Document Msg
 view model =
     let
         playerList =
@@ -254,4 +255,6 @@ view model =
         gameView =
             stylesheet :: playTimeView :: deckView :: discardView :: playersView
     in
-    div [ class "game-view" ] gameView
+    { title = "Elmonkorjuu"
+    , body = [ div [ class "game-view" ] gameView ]
+    }

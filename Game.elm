@@ -12,6 +12,7 @@
 module Game exposing (..)
 
 import Array exposing (empty)
+import Browser
 import Domain exposing (Model, startGameWithPlayers)
 import Html
 import Random exposing (initialSeed)
@@ -55,9 +56,10 @@ subscriptions model =
     Time.every 1000 Msg.GetTime
 
 
+main : Program () Model Msg
 main =
-    Html.program
-        { init = ( initialModel, Cmd.none )
+    Browser.document
+        { init = \_ -> ( initialModel, Cmd.none )
         , view = GameView.view
         , update = Update.update
         , subscriptions = subscriptions
