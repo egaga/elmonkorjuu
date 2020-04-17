@@ -3,13 +3,13 @@ module Domain exposing (..)
 import Array exposing (Array)
 import Random exposing (initialSeed)
 import Random.Array
-import Time exposing (Time)
+import Time exposing (Posix)
 import Util exposing (arrayDrop, arrayReverse, asplitByIndex)
 
 
 type alias Model =
-    { startTime : Maybe Time
-    , currentTime : Time
+    { startTime : Maybe Posix
+    , currentTime : Posix
     , players : Array Player
     , deck : Deck
     , discard : Deck
