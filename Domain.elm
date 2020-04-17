@@ -75,17 +75,17 @@ type alias PriceMapping =
 
 
 cards =
-    { coffee = card "Coffee" Coffee
-    , soy = card "Soy" Soy
-    , blue = card "Blue" Blue
-    , wax = card "Wax" Wax
-    , chili = card "Chili" Chili
-    , stink = card "Stink" Stink
-    , green = card "Green" Green
-    , blackEyed = card "Black-eyed" BlackEyed
-    , red = card "Red" Red
-    , garden = card "Garden" Garden
-    , cocoa = card "Cocoa" Cocoa
+    { coffee = makeCard "Coffee" Coffee
+    , soy = makeCard "Soy" Soy
+    , blue = makeCard "Blue" Blue
+    , wax = makeCard "Wax" Wax
+    , chili = makeCard "Chili" Chili
+    , stink = makeCard "Stink" Stink
+    , green = makeCard "Green" Green
+    , blackEyed = makeCard "Black-eyed" BlackEyed
+    , red = makeCard "Red" Red
+    , garden = makeCard "Garden" Garden
+    , cocoa = makeCard "Cocoa" Cocoa
     }
 
 
@@ -227,8 +227,8 @@ shuffleDeck deck =
     shuffledDeck
 
 
-card : String -> CardType -> Card
-card name cardType =
+makeCard : String -> CardType -> Card
+makeCard name cardType =
     { name = name
     , cardType = cardType
     }
@@ -307,11 +307,11 @@ drawCardsToHand deck player =
 drawCardsToTrade : Deck -> Player -> ( Deck, Player )
 drawCardsToTrade deck player =
     let
-        ( trade, newDeck ) =
+        ( newTrade, newDeck ) =
             takeCardsFromDeck drawToTradeCardsAmount deck
 
         newPlayer =
-            { player | trade = trade }
+            { player | trade = newTrade }
     in
     ( newDeck, newPlayer )
 
