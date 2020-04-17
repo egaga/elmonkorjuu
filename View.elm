@@ -34,13 +34,13 @@ fieldView player index field =
             field
 
         cardText =
-            text (card.name ++ " (" ++ toString amount ++ ")")
+            text (card.name ++ " (" ++ String.fromInt amount ++ ")")
 
         sellAmount =
             Domain.sellPrice amount card.cardType
 
         sellButton =
-            button [ onClickDo (PlayerAction.SellField player index) ] [ text ("Sell $" ++ toString sellAmount) ]
+            button [ onClickDo (PlayerAction.SellField player index) ] [ text ("Sell $" ++ String.fromInt sellAmount) ]
     in
     div [ class "card" ] [ cardText, sellButton, priceMeterView card.cardType ]
 
@@ -107,9 +107,9 @@ viewTopMostHandCard players player card =
 amountToPriceView { amount, money } =
     div [ class "priceMapping" ]
         [ div [ class "coins" ]
-            [ text (toString money) ]
+            [ text (String.fromInt money) ]
         , div [ class "meterLimit" ]
-            [ text (toString amount) ]
+            [ text (String.fromInt amount) ]
         ]
 
 
@@ -178,7 +178,7 @@ tradeView players player trade =
                     cardContent card (keepBtn :: tradeButtons)
 
                 iv =
-                    div [] [ text (toString index) ]
+                    div [] [ text (String.fromInt index) ]
             in
             div [ class "card" ] (iv :: tradeViewContent)
     in
@@ -196,7 +196,7 @@ playerView players player =
     in
     [ div [ class "player-info" ]
         [ text ("Player: " ++ player.nick)
-        , span [ class "money" ] [ text ("Money: " ++ toString player.money) ]
+        , span [ class "money" ] [ text ("Money: " ++ String.fromInt player.money) ]
         ]
     , button [ onClickDo (PlayerAction.DrawCardsToTrade player) ] [ text "Draw cards for trade" ]
     , button [ onClickDo (PlayerAction.DrawCardsToHand player) ] [ text "Draw cards to hand" ]
