@@ -192,10 +192,10 @@ listaddToFields card fields =
 drawCardsToHand : Deck -> Player -> (Deck, Player)
 drawCardsToHand deck player =
   let
-    (newCards, deck) = takeCardsFromDeck 3 deck
+    (newCards, newDeck) = takeCardsFromDeck 3 deck
     newPlayer = { player | hand = Array.append player.hand newCards }
   in
-    (deck, newPlayer)
+    (newDeck, newPlayer)
 
 drawCardsToTrade : Deck -> Player -> (Deck, Player)
 drawCardsToTrade deck player =

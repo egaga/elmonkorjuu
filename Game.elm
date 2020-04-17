@@ -14,7 +14,7 @@ module Elmonkorjuu exposing (..)
 
 import View as GameView
 import Domain          exposing (Model, startGameWithPlayers)
-import Html.App as HtmlApp
+import Html
 import UI as Msg exposing (Msg)
 import Random exposing (initialSeed)
 import Array exposing (empty)
@@ -45,7 +45,7 @@ subscriptions model =
   Time.every second Msg.GetTime
 
 main =
-  HtmlApp.program
+  Html.program
     { init = (initialModel, Cmd.none),
       view = GameView.view,
       update = Update.update,
