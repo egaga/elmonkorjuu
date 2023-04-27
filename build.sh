@@ -1,3 +1,3 @@
 #!/bin/sh
-elm make game.elm --optimize --output=game.html
+elm make Game.elm --optimize --output=game.html
 
